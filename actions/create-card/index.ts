@@ -5,7 +5,7 @@ import { InputType, ReturnType } from "./types"
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { createSafeAction } from "@/lib/create-safe-action"
-import { CreateList } from "./schema"
+import { CreateCard } from "./schema"
 
 const handler = async (data : InputType): Promise<ReturnType> => {
     const { userId, orgId } = auth()
@@ -16,52 +16,56 @@ const handler = async (data : InputType): Promise<ReturnType> => {
         }
     }
 
-    const { title, boardId } = data
-    let list
+    const { title, boardId, listId } = data
+    let card
 
     try {
-        const board = await db.board.findUnique({
-            where: {
-                id: boardId,
-                orgId,
-            },
-        });
 
-        if (!board) {
+        const list = await db.list.findUnique({
+            where: {
+                id: listId,
+                boardId: boardId,
+                board: {
+                    orgId
+                },
+            }
+        })
+
+        if (!list) {
             return {
-                error: "Board not found."
+                error: "List not found"
             }
         }
 
-        const lastList = await db.list.findFirst({
+        const lastCard = await db.card.findFirst({
             where: {
-                boardId
+                listId: listId,
             },
             orderBy: {
                 order: "desc"
-            },
-            select: {
-                order: true
             }
         })
 
-        const newOrder = lastList ? lastList.order + 1 : 1;
+        const newOrder = lastCard ? lastCard.order + 1 : 1;
 
-        list = await db.list.create({
+        const card = await db.card.create({
             data: {
                 title,
-                boardId,
-                order: newOrder
+                listId,
+
+                order: newOrder,
             }
+
         })
-    } catch (error) {
+
+        } catch (error) {
         return {
             error: "Failed to create"
         }
     }
 
     revalidatePath(`/board/${boardId}`);
-    return { data: list } 
+    return { data: card } 
 } 
 
-export const createList = createSafeAction(CreateList, handler)
+export const createCard = createSafeAction(CreateCard, handler)
