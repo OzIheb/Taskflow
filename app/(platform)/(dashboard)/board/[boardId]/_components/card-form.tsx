@@ -38,10 +38,10 @@ export const CardForm = forwardRef<HTMLTextAreaElement, CardFormProps>(({
       toast.success(`Card "${data.title}" created`);
       formRef.current?.reset();
     },
-    onError: (error) => {
-      toast.error(error);
-    },
-  });
+    onError: () => {
+      toast.error("Something went wrong");
+    }
+  })
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Escape") {
@@ -62,9 +62,10 @@ export const CardForm = forwardRef<HTMLTextAreaElement, CardFormProps>(({
   const onSubmit = (formData: FormData) => {
     const title = formData.get("title") as string;
     const listId = formData.get("listId") as string;
-    const boardId = params.boardId as string;
+    const boardId = formData.get("boardId") as string;
 
-    execute({ title, listId, boardId });
+    let data = execute({ title, listId, boardId });
+    console.log(data)
   };
 
   if (isEditing) {
@@ -86,6 +87,12 @@ export const CardForm = forwardRef<HTMLTextAreaElement, CardFormProps>(({
           id="listId"
           name="listId"
           value={listId}
+        />
+        <input
+          hidden
+          id="boardId"
+          name="boardId"
+          value={params.boardId}
         />
         <div className="flex items-center gap-x-1">
           <FormSubmit>

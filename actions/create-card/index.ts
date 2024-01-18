@@ -48,7 +48,7 @@ const handler = async (data : InputType): Promise<ReturnType> => {
 
         const newOrder = lastCard ? lastCard.order + 1 : 1;
 
-        const card = await db.card.create({
+        card = await db.card.create({
             data: {
                 title,
                 listId,
@@ -64,6 +64,7 @@ const handler = async (data : InputType): Promise<ReturnType> => {
         }
     }
 
+    console.log("success")
     revalidatePath(`/board/${boardId}`);
     return { data: card } 
 } 
