@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { ListItem } from "./list-item";
 import { useAction } from "@/hooks/use-action";
 import { updateListOrder } from "@/actions/update-list-order";
+import { updateCardOrder } from "@/actions/update-card-order";
 
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"
 import { toast } from "sonner";
@@ -22,12 +23,22 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
 
     const { execute: executeUpdateListOrder } = useAction(updateListOrder, {
         onSuccess: () => {
-            toast.success("List reordered")
+            toast.success("List reordered successfully")
         },
         onError: (error) => {
             toast.error(error)
         }
     })
+
+    const { execute: executeUpdateCardOrder } = useAction(updateCardOrder, {
+        onSuccess: () => {
+            toast.success("Card reordered successfully")
+        },
+        onError: (error) => {
+            toast.error(error)
+        }
+    })
+    
 
     useEffect(() => {
         setOrderedData(data)
@@ -114,6 +125,10 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
                 setOrderedData(newOrderedData)
 
                 // Trigger server action
+                executeUpdateCardOrder({
+                    boardId,
+                    items: reorderedCards
+                })
 
             // user moves the card to another list 
             } else {
@@ -136,7 +151,11 @@ export const ListContainer = ({ data, boardId }: ListContainerProps) => {
 
                 setOrderedData(newOrderedData)
 
-                //TODO: Trigger server action
+                executeUpdateCardOrder({
+                    boardId,
+                    items: destList.cards
+                
+                })
 
             }
         }

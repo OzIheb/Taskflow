@@ -5,8 +5,7 @@ import { InputType, ReturnType } from "./types"
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { createSafeAction } from "@/lib/create-safe-action"
-import {  UpdateListOrder } from "./schema"
-import { list } from "unsplash-js/dist/methods/photos"
+import { UpdateCard } from "./schema"
 
 const handler = async (data : InputType): Promise<ReturnType> => {
     const { userId, orgId } = auth()
@@ -17,36 +16,31 @@ const handler = async (data : InputType): Promise<ReturnType> => {
         }
     }
 
-    const { items, boardId } = data
-    let lists
+    const { id, boardId, ...values } = data
+    let card 
 
     try {
-        const transaction = items.map((list) => 
-            db.list.update({
-                where: {
-                    id: list.id,
+        card = await db.card.update({
+            where: {
+                id,
+                list: {
                     board: {
                         orgId,
-                    },
-                },
-                data: {
-                    order: list.order,
+                    }
                 }
-            })
-        )  
-
-        lists = await db.$transaction(transaction)
-
-        
-
+            },
+            data: {
+                ...values,
+            }
+        })
     } catch (error) {
         return {
-            error: "Failed to reorder cards"
+            error: "Failed to update card."
         }
     }
 
     revalidatePath(`/board/${boardId}`);
-    return { data: lists } 
+    return { data: card } 
 } 
 
-export const updateListOrder = createSafeAction(UpdateListOrder, handler)
+export const updateCard = createSafeAction(UpdateCard, handler)
