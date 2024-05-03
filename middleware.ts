@@ -7,6 +7,7 @@ import { NextResponse } from "next/server";
 export default authMiddleware({
     publicRoutes: ["/"],
     afterAuth(auth, req) {
+
         if (auth.userId && auth.isPublicRoute) {
             let path = "/select-org"
 
@@ -23,6 +24,11 @@ export default authMiddleware({
         const orgSelection = new URL("/select-org", req.url);
         return NextResponse.redirect(orgSelection);
       }
+      if (
+      req.nextUrl.pathname === '/' || (req.nextUrl.pathname === '/site' && req.nextUrl.host === process.env.NEXT_PUBLIC_DOMAIN)
+    ) {
+      return NextResponse.rewrite(new URL('/site', req.url))
+    }
     },
 });
  

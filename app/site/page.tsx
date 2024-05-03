@@ -27,7 +27,7 @@ const textFont = Poppins({
 })
 
 
-const MarketingPage = () => {
+const Page = () => {
     return (
         <div className="flex items-center flex-col justify-center">
             <div className={cn("flex items-center flex-col justify-center",
@@ -52,4 +52,4 @@ const MarketingPage = () => {
         </div>
     )
 }
-export default MarketingPage
+export default Page
